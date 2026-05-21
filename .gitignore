@@ -1,0 +1,36 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# --- Node ---
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# --- Project Specific ---
+storage/uploads/*
+!storage/uploads/.gitkeep
+storage/voices/*
+!storage/voices/.gitkeep
+storage/logs/*
+!storage/logs/.gitkeep
+storage/task_status.json
+backend/config.json
+
+# --- Models ---
+models/cache/*
+!models/cache/.gitkeep
+
+# --- IDEs ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- System ---
+.DS_Store
+Thumbs.db

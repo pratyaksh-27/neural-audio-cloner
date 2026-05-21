@@ -1,0 +1,259 @@
+[2026-05-19 23:35:58] --- WORKER STARTING ---
+[2026-05-19 23:35:58] Loading libraries...
+[2026-05-19 23:36:01] Torch Version: 2.1.2+cu121
+[2026-05-19 23:38:03] --- WORKER STARTING ---
+[2026-05-19 23:38:04] Step 1: Importing torch...
+[2026-05-19 23:38:07]    Success. Version: 2.1.2+cu121
+[2026-05-19 23:38:07] Step 2: Importing F5-TTS API (This usually crashes if there's a conflict)...
+[2026-05-19 23:43:17] --- WORKER STARTING ---
+[2026-05-19 23:43:17] Importing core libraries...
+[2026-05-20 02:38:34] --- WORKER STARTING (Torch 2.4.1 Restore) ---
+[2026-05-20 02:38:34] Step 1: Importing torch...
+[2026-05-20 02:38:42]    Success. Version: 2.4.1+cu121, CUDA: True
+[2026-05-20 02:38:42] Step 2: Importing F5-TTS API...
+[2026-05-20 02:39:23]    Success.
+[2026-05-20 02:39:23] Step 3: Initializing F5-TTS on CUDA (The moment of truth)...
+[2026-05-20 02:39:44]    Success. Device: cuda
+[2026-05-20 02:39:44] Step 4: Initializing AudioProcessor...
+[2026-05-20 02:39:44] WORKER READY.
+[2026-05-20 02:39:44] FATAL ERROR: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions
+Traceback (most recent call last):
+  File "E:\workspace-gemini-cli\neural-audio-cloner\backend\ml_worker.py", line 57, in run_worker
+    server.bind(('127.0.0.1', 9999))
+PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions
+[2026-05-20 02:40:15] --- WORKER STARTING (Torch 2.4.1 Restore) ---
+[2026-05-20 02:40:16] Step 1: Importing torch...
+[2026-05-20 02:40:19]    Success. Version: 2.4.1+cu121, CUDA: True
+[2026-05-20 02:40:19] Step 2: Importing F5-TTS API...
+[2026-05-20 02:40:28]    Success.
+[2026-05-20 02:40:28] Step 3: Initializing F5-TTS on CUDA (The moment of truth)...
+[2026-05-20 02:40:33]    Success. Device: cuda
+[2026-05-20 02:40:34] Step 4: Initializing AudioProcessor...
+[2026-05-20 02:40:34] WORKER READY.
+[2026-05-20 02:40:34] FATAL ERROR: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions
+Traceback (most recent call last):
+  File "E:\workspace-gemini-cli\neural-audio-cloner\backend\ml_worker.py", line 57, in run_worker
+    server.bind(('127.0.0.1', 9999))
+PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions
+[2026-05-20 05:32:59] --- WORKER STARTING (Torch 2.4.1 + Port 10101) ---
+[2026-05-20 05:32:59] Step 1: Importing torch...
+[2026-05-20 05:33:02]    Success. Version: 2.4.1+cu121, CUDA: True
+[2026-05-20 05:33:02] Step 2: Importing F5-TTS API...
+[2026-05-20 05:33:12]    Success.
+[2026-05-20 05:33:12] Step 3: Initializing F5-TTS on CUDA...
+[2026-05-20 05:33:18]    Success. Device: cuda
+[2026-05-20 05:33:18] Step 4: Initializing AudioProcessor...
+[2026-05-20 05:33:18] WORKER READY.
+[2026-05-20 05:33:18] Step 5: Binding socket to 127.0.0.1:10101...
+[2026-05-20 05:33:18] Step 6: Listening for tasks...
+[2026-05-20 07:17:24] --- WORKER STARTING (Torch 2.4.1 + Port 10101) ---
+[2026-05-20 07:17:24] Step 1: Importing torch...
+[2026-05-20 07:17:28]    Success. Version: 2.4.1+cu121, CUDA: True
+[2026-05-20 07:17:28] Step 2: Importing F5-TTS API...
+[2026-05-20 07:17:38]    Success.
+[2026-05-20 07:17:38] Step 3: Initializing F5-TTS on CUDA...
+[2026-05-20 07:17:44]    Success. Device: cuda
+[2026-05-20 07:17:44] Step 4: Initializing AudioProcessor...
+[2026-05-20 07:17:44] WORKER READY.
+[2026-05-20 07:17:44] Step 5: Binding socket to 127.0.0.1:10101...
+[2026-05-20 07:17:44] Step 6: Listening for tasks...
+[2026-05-20 07:18:59] Task: upload
+[2026-05-20 07:18:59] TASK ERROR: Demucs separation failed: C:\Python311\python.exe: Error while finding module specification for 'demucs.separate' (ModuleNotFoundError: No module named 'demucs')
+
+[2026-05-20 07:22:22] --- WORKER STARTING (Torch 2.4.1 + Port 10101) ---
+[2026-05-20 07:22:22] Step 1: Importing torch...
+[2026-05-20 07:22:26]    Success. Version: 2.4.1+cu121, CUDA: True
+[2026-05-20 07:22:26] Step 2: Importing F5-TTS API...
+[2026-05-20 07:22:38]    Success.
+[2026-05-20 07:22:38] Step 3: Initializing F5-TTS on CUDA...
+[2026-05-20 07:22:44]    Success. Device: cuda
+[2026-05-20 07:22:44] Step 4: Initializing AudioProcessor...
+[2026-05-20 07:22:44] WORKER READY.
+[2026-05-20 07:22:44] Step 5: Binding socket to 127.0.0.1:10101...
+[2026-05-20 07:22:44] Step 6: Listening for tasks...
+[2026-05-20 07:23:24] Task: upload
+[2026-05-20 07:23:47] TASK ERROR: Demucs separation failed: Downloading: "https://dl.fbaipublicfiles.com/demucs/hybrid_transformer/955717e8-8726e21a.th" to E:\workspace-gemini-cli\neural-audio-cloner\models\cache\xdg\torch\hub\checkpoints\955717e8-8726e21a.th
+
+  0%|          | 0.00/80.2M [00:00<?, ?B/s]
+  3%|3         | 2.50M/80.2M [00:00<00:03, 25.8MB/s]
+  6%|6         | 5.00M/80.2M [00:00<00:04, 16.6MB/s]
+  9%|8         | 6.88M/80.2M [00:00<00:06, 12.1MB/s]
+ 11%|#         | 8.50M/80.2M [00:00<00:05, 13.0MB/s]
+ 12%|#2        | 10.0M/80.2M [00:00<00:05, 13.0MB/s]
+ 14%|#4        | 11.4M/80.2M [00:00<00:05, 12.2MB/s]
+ 16%|#5        | 12.6M/80.2M [00:00<00:05, 12.4MB/s]
+ 17%|#7        | 13.9M/80.2M [00:01<00:05, 12.5MB/s]
+ 19%|#8        | 15.1M/80.2M [00:01<00:05, 12.7MB/s]
+ 20%|##        | 16.4M/80.2M [00:01<00:05, 12.7MB/s]
+ 22%|##1       | 17.6M/80.2M [00:01<00:05, 12.7MB/s]
+ 24%|##3       | 19.0M/80.2M [00:01<00:05, 12.8MB/s]
+ 25%|##5       | 20.2M/80.2M [00:01<00:04, 12.8MB/s]
+ 27%|##6       | 21.5M/80.2M [00:01<00:04, 12.9MB/s]
+ 28%|##8       | 22.8M/80.2M [00:01<00:04, 12.9MB/s]
+ 30%|##9       | 24.0M/80.2M [00:01<00:04, 12.9MB/s]
+ 31%|###1      | 25.2M/80.2M [00:02<00:04, 12.8MB/s]
+ 33%|###3      | 26.5M/80.2M [00:02<00:04, 12.9MB/s]
+ 35%|###4      | 27.8M/80.2M [00:02<00:04, 12.9MB/s]
+ 36%|###6      | 29.0M/80.2M [00:02<00:04, 12.9MB/s]
+ 38%|###7      | 30.2M/80.2M [00:02<00:04, 12.9MB/s]
+ 39%|###9      | 31.5M/80.2M [00:02<00:03, 12.9MB/s]
+ 41%|####      | 32.8M/80.2M [00:02<00:03, 12.9MB/s]
+ 42%|####2     | 34.0M/80.2M [00:02<00:03, 12.9MB/s]
+ 44%|####3     | 35.2M/80.2M [00:02<00:03, 12.9MB/s]
+ 45%|####5     | 36.5M/80.2M [00:02<00:03, 12.9MB/s]
+ 47%|####7     | 37.8M/80.2M [00:03<00:03, 12.9MB/s]
+ 49%|####8     | 39.0M/80.2M [00:03<00:03, 12.9MB/s]
+ 50%|#####     | 40.2M/80.2M [00:03<00:03, 12.9MB/s]
+ 52%|#####1    | 41.5M/80.2M [00:03<00:03, 12.9MB/s]
+ 53%|#####3    | 42.8M/80.2M [00:03<00:03, 12.9MB/s]
+ 55%|#####4    | 44.0M/80.2M [00:03<00:02, 12.9MB/s]
+ 56%|#####6    | 45.2M/80.2M [00:03<00:02, 12.9MB/s]
+ 58%|#####7    | 46.5M/80.2M [00:03<00:02, 12.9MB/s]
+ 60%|#####9    | 47.8M/80.2M [00:03<00:02, 12.9MB/s]
+ 61%|######1   | 49.0M/80.2M [00:03<00:02, 12.9MB/s]
+ 63%|######2   | 50.2M/80.2M [00:04<00:02, 12.9MB/s]
+ 64%|######4   | 51.5M/80.2M [00:04<00:02, 12.9MB/s]
+ 66%|######5   | 52.8M/80.2M [00:04<00:02, 12.9MB/s]
+ 67%|######7   | 54.0M/80.2M [00:04<00:02, 12.9MB/s]
+ 69%|######8   | 55.2M/80.2M [00:04<00:02, 12.9MB/s]
+ 70%|#######   | 56.5M/80.2M [00:04<00:01, 12.9MB/s]
+ 72%|#######1  | 57.8M/80.2M [00:04<00:01, 12.9MB/s]
+ 74%|#######3  | 59.0M/80.2M [00:04<00:01, 12.9MB/s]
+ 75%|#######5  | 60.2M/80.2M [00:04<00:01, 12.9MB/s]
+ 77%|#######6  | 61.5M/80.2M [00:04<00:01, 12.9MB/s]
+ 78%|#######8  | 62.8M/80.2M [00:05<00:01, 12.9MB/s]
+ 80%|#######9  | 64.0M/80.2M [00:05<00:01, 12.9MB/s]
+ 81%|########1 | 65.2M/80.2M [00:05<00:01, 12.9MB/s]
+ 83%|########2 | 66.5M/80.2M [00:05<00:01, 12.9MB/s]
+ 84%|########4 | 67.8M/80.2M [00:05<00:01, 12.9MB/s]
+ 86%|########5 | 69.0M/80.2M [00:05<00:00, 12.9MB/s]
+ 88%|########7 | 70.2M/80.2M [00:05<00:00, 12.9MB/s]
+ 89%|########9 | 71.5M/80.2M [00:05<00:00, 12.8MB/s]
+ 91%|######### | 72.8M/80.2M [00:05<00:00, 12.9MB/s]
+ 92%|#########2| 74.0M/80.2M [00:05<00:00, 12.9MB/s]
+ 94%|#########3| 75.2M/80.2M [00:06<00:00, 12.9MB/s]
+ 95%|#########5| 76.5M/80.2M [00:06<00:00, 12.9MB/s]
+ 97%|#########6| 77.8M/80.2M [00:06<00:00, 12.9MB/s]
+ 98%|#########8| 79.0M/80.2M [00:06<00:00, 12.8MB/s]
+100%|##########| 80.2M/80.2M [00:06<00:00, 13.0MB/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "E:\workspace-gemini-cli\neural-audio-cloner\backend\venv\Lib\site-packages\demucs\separate.py", line 219, in <module>
+    main()
+  File "E:\workspace-gemini-cli\neural-audio-cloner\backend\venv\Lib\site-packages\demucs\separate.py", line 173, in main
+    sources = apply_model(model, wav[None], device=args.device, shifts=args.shifts,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\workspace-gemini-cli\neural-audio-cloner\backend\venv\Lib\site-packages\demucs\apply.py", line 187, in apply_model
+    sub_model.to(device)
+  File "E:\workspace-gemini-cli\neural-audio-cloner\backend\venv\Lib\site-packages\torch\nn\modules\module.py", line 1174, in to
+    return self._apply(convert)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "E:\workspace-gemini-cli\neural-audio-cloner\backend\venv\Lib\site-packages\torch\nn\modules\module.py", line 780, in _apply
+    module._apply(fn)
+  File "E:\workspace-gemini-cli\neural-audio-cloner\backend\venv\Lib\site-packages\torch\nn\modules\module.py", line 780, in _apply
+    module._apply(fn)
+  File "E:\workspace-gemini-cli\neural-audio-cloner\backend\venv\Lib\site-packages\torch\nn\modules\module.py", line 780, in _apply
+    module._apply(fn)
+  File "E:\workspace-gemini-cli\neural-audio-cloner\backend\venv\Lib\site-packages\torch\nn\modules\module.py", line 805, in _apply
+    param_applied = fn(param)
+                    ^^^^^^^^^
+  File "E:\workspace-gemini-cli\neural-audio-cloner\backend\venv\Lib\site-packages\torch\nn\modules\module.py", line 1160, in convert
+    return t.to(
+           ^^^^^
+RuntimeError: CUDA error: CUDA-capable device(s) is/are busy or unavailable
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+
+[2026-05-20 07:36:43] --- WORKER STARTING (Torch 2.4.1 + Port 10101) ---
+[2026-05-20 07:36:43] Step 1: Importing torch...
+[2026-05-20 07:36:46]    Success. Version: 2.4.1+cu121, CUDA: True
+[2026-05-20 07:36:46] Step 2: Importing F5-TTS API...
+[2026-05-20 07:36:56]    Success.
+[2026-05-20 07:36:56] Step 3: Initializing F5-TTS on CUDA...
+[2026-05-20 07:37:02]    Success. Device: cuda
+[2026-05-20 07:37:02] Step 4: Initializing AudioProcessor...
+[2026-05-20 07:37:02] WORKER READY.
+[2026-05-20 07:37:02] Step 5: Binding socket to 127.0.0.1:10101...
+[2026-05-20 07:37:02] Step 6: Listening for tasks...
+[2026-05-20 07:37:40] Task: upload
+[2026-05-20 07:44:58] --- WORKER STARTING (Torch 2.4.1 + Port 10101) ---
+[2026-05-20 07:44:59] Step 1: Importing torch...
+[2026-05-20 07:45:03]    Success. Version: 2.4.1+cu121, CUDA: True
+[2026-05-20 07:45:03] Step 2: Importing F5-TTS API...
+[2026-05-20 07:45:14]    Success.
+[2026-05-20 07:45:14] Step 3: Initializing F5-TTS on CUDA...
+[2026-05-20 07:45:20]    Success. Device: cuda
+[2026-05-20 07:45:20] Step 4: Initializing AudioProcessor...
+[2026-05-20 07:45:20] WORKER READY.
+[2026-05-20 07:45:20] Step 5: Binding socket to 127.0.0.1:10101...
+[2026-05-20 07:45:20] Step 6: Listening for tasks...
+[2026-05-20 07:49:52] Task: upload
+[2026-05-20 07:57:31] --- WORKER STARTING (Torch 2.4.1 + Port 10101) ---
+[2026-05-20 07:57:32] Step 1: Importing torch...
+[2026-05-20 07:57:35]    Success. Version: 2.4.1+cu121, CUDA: True
+[2026-05-20 07:57:35] Step 2: Importing F5-TTS API...
+[2026-05-20 07:57:45]    Success.
+[2026-05-20 07:57:45] Step 3: Initializing F5-TTS on CUDA...
+[2026-05-20 07:57:51]    Success. Device: cuda
+[2026-05-20 07:57:51] Step 4: Initializing AudioProcessor...
+[2026-05-20 07:57:51] WORKER READY.
+[2026-05-20 07:57:51] Step 5: Binding socket to 127.0.0.1:10101...
+[2026-05-20 07:57:51] Step 6: Listening for tasks...
+[2026-05-20 08:06:48] --- WORKER STARTING (Torch 2.4.1 + Port 10101) ---
+[2026-05-20 08:06:48] Step 1: Importing torch...
+[2026-05-20 08:07:11]    Success. Version: 2.4.1+cu121, CUDA: True
+[2026-05-20 08:07:11] Step 2: Importing F5-TTS API...
+[2026-05-20 08:08:08]    Success.
+[2026-05-20 08:08:08] Step 3: Initializing F5-TTS on CUDA...
+[2026-05-20 08:08:26]    Success. Device: cuda
+[2026-05-20 08:08:26] Step 4: Initializing AudioProcessor...
+[2026-05-20 08:08:26] WORKER READY.
+[2026-05-20 08:08:26] Step 5: Binding socket to 127.0.0.1:10101...
+[2026-05-20 08:08:26] Step 6: Listening for tasks...
+[2026-05-20 08:08:55] Task: upload
+[2026-05-20 08:49:53] --- WORKER STARTING (Torch 2.4.1 + Port 10101) ---
+[2026-05-20 08:49:53] Step 1: Importing torch...
+[2026-05-20 08:49:56]    Success. Version: 2.4.1+cu121, CUDA: True
+[2026-05-20 08:49:56] Step 2: Importing F5-TTS API...
+[2026-05-20 08:50:05]    Success.
+[2026-05-20 08:50:05] Step 3: Initializing F5-TTS on CUDA...
+[2026-05-20 08:50:10]    Success. Device: cuda
+[2026-05-20 08:50:10] Step 4: Initializing AudioProcessor...
+[2026-05-20 08:50:10] WORKER READY.
+[2026-05-20 08:50:10] Step 5: Binding socket to 127.0.0.1:10101...
+[2026-05-20 08:50:10] Step 6: Listening for tasks...
+[2026-05-20 09:01:16] --- WORKER STARTING (Resource Optimized) ---
+[2026-05-20 09:01:16] Step 1: Importing torch...
+[2026-05-20 09:01:41]    Success. Version: 2.4.1+cu121, CUDA: True
+[2026-05-20 09:01:41] Step 2: Importing F5-TTS API...
+[2026-05-20 09:02:39] Step 3: Initializing F5-TTS on CUDA (Direct Load)...
+[2026-05-20 09:02:57]    Success. Model loaded on cuda.
+[2026-05-20 09:02:57] Step 4: Initializing AudioProcessor...
+[2026-05-20 09:02:57] WORKER READY.
+[2026-05-20 09:02:57] Step 5: Binding socket to 127.0.0.1:10101...
+[2026-05-20 09:02:57] Step 6: Listening for tasks...
+[2026-05-20 09:03:53] Task: upload
+[2026-05-20 09:07:11] --- WORKER STARTING (Resource Optimized) ---
+[2026-05-20 09:07:11] Step 1: Importing torch...
+[2026-05-20 09:07:16]    Success. Version: 2.4.1+cu121, CUDA: True
+[2026-05-20 09:07:16] Step 2: Importing F5-TTS API...
+[2026-05-20 09:07:34] Step 3: Initializing F5-TTS on CUDA (Direct Load)...
+[2026-05-20 09:07:40]    Success. Model loaded on cuda.
+[2026-05-20 09:07:40] Step 4: Initializing AudioProcessor...
+[2026-05-20 09:07:40] WORKER READY.
+[2026-05-20 09:07:40] Step 5: Binding socket to 127.0.0.1:10101...
+[2026-05-20 09:07:40] Step 6: Listening for tasks...
+[2026-05-20 09:09:13] Task: upload
+[2026-05-20 09:20:10] --- WORKER STARTING (Verification Integrated) ---
+[2026-05-20 09:20:11] Step 1: Importing libraries...
+[2026-05-20 09:23:25] --- WORKER STARTING (Granular Import Debug) ---
+[2026-05-20 09:23:25] Importing: torch...
+[2026-05-20 09:23:27]    Done (Version: 2.4.1+cu121)
+[2026-05-20 09:23:27] Importing: torchaudio...
+[2026-05-20 09:23:27]    Done (Version: 2.4.1+cu121)
+[2026-05-20 09:23:28] Importing: numpy...
+[2026-05-20 09:23:28]    Done (Version: 1.26.4)
+[2026-05-20 09:23:28] Importing: f5_tts.api...

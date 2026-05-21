@@ -1,0 +1,59 @@
+name: Automated Release
+
+on:
+  push:
+    branches: [ main, master ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Bump Version in JSON
+        shell: python
+        run: |
+          import json
+          import os
+
+          # 1. Load current version
+          with open('version.json', 'r') as f:
+              data = json.load(f)
+          
+          current_v = data['version']
+          print(f"Current version: {current_v}")
+
+          # 2. Increment Patch (1.0.0 -> 1.0.1)
+          v_parts = current_v.split('.')
+          v_parts[2] = str(int(v_parts[2]) + 1)
+          new_v = '.'.join(v_parts)
+          print(f"New version: {new_v}")
+
+          # 3. Save back to file
+          data['version'] = new_v
+          with open('version.json', 'w') as f:
+              json.dump(data, f, indent=4)
+          
+          # 4. Export to environment for next steps
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"new_tag=v{new_v}\n")
+        id: bump
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add version.json
+          git commit -m "chore: release version ${{ steps.bump.outputs.new_tag }} [skip ci]"
+          git push origin HEAD
+
+      - name: Create and Push Tag
+        run: |
+          git tag ${{ steps.bump.outputs.new_tag }}
+          git push origin ${{ steps.bump.outputs.new_tag }}
