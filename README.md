@@ -59,6 +59,17 @@ NAC Studio uses a **Physical Process Isolation** pattern to maintain stability o
 
 ---
 
+## 🔍 Diagnostics & Troubleshooting
+
+If you encounter issues during setup or inference, you can run the following diagnostic scripts located in `backend/internal_scripts/`:
+
+*   **Deep Hardware Check:** `python backend/internal_scripts/diagnose.py` (Checks CUDA, VRAM, and path resolution).
+*   **ML Environment Audit:** `python backend/internal_scripts/debug_ml.py` (Tests model loading and inference logic).
+*   **Audio Quality Audit:** `python backend/internal_scripts/verify_audio_standalone.py` (Analyzes reference audio samples for technical issues).
+*   **Crash Logs:** Check `storage/logs/` for detailed error traces and crash reports.
+
+---
+
 ## 📚 Documentation
 
 *   **[Installation Guide (Layman-Friendly)](docs/INSTALL.md)** - Step-by-step for non-technical users.

@@ -13,11 +13,11 @@ export const uploadVoice = async (file: File) => {
   return response.data;
 };
 
-export const confirmVoice = async (voiceName: string, tempPath: string, refText: string) => {
+export const confirmVoice = async (voice_name: string, temp_path: string, ref_text: string) => {
   const formData = new FormData();
-  formData.append('voice_name', voiceName);
-  formData.append('temp_path', tempPath);
-  formData.append('ref_text', refText);
+  formData.append('voice_name', voice_name);
+  formData.append('temp_path', temp_path);
+  formData.append('ref_text', ref_text);
   const response = await api.post('/confirm-voice', formData);
   return response.data;
 };
@@ -32,16 +32,26 @@ export const deleteVoice = async (voiceName: string) => {
   return response.data;
 };
 
-export const generateAudio = async (voiceName: string, text: string, speed: number, nfeStep: number, style: string) => {
+export const generateAudio = async (
+  voiceName: string, text: string, speed: number, nfeStep: number, 
+  style: string, clarity: number, deepness: number, sibilance: number
+) => {
   const formData = new FormData();
   formData.append('voice_name', voiceName);
   formData.append('text', text);
   formData.append('speed', speed.toString());
   formData.append('nfe_step', nfeStep.toString());
   formData.append('style', style);
-  const response = await api.post('/generate', formData, {
-    responseType: 'blob',
-  });
+  formData.append('clarity', clarity.toString());
+  formData.append('deepness', deepness.toString());
+  formData.append('sibilance', sibilance.toString());
+  
+  const response = await api.post('/generate', formData);
+  return response.data;
+};
+
+export const exportProject = async (paths: string[]) => {
+  const response = await api.post('/export-project', { paths });
   return response.data;
 };
 

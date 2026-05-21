@@ -5,11 +5,8 @@ import json
 import socket
 import shutil
 import gc
+import threading
 from pathlib import Path
-
-# --- NEW: Enterprise Logging ---
-from logging_config import setup_logger
-logger = setup_logger("ML_WORKER", "worker.log")
 
 # --- 1. STRICT ENVIRONMENT SETUP ---
 BASE_DIR = Path(__file__).parent.parent
@@ -23,6 +20,13 @@ STORAGE_DIR.mkdir(parents=True, exist_ok=True)
 os.environ["HF_HOME"] = str(CACHE_DIR / "huggingface")
 os.environ["XDG_CACHE_HOME"] = str(CACHE_DIR / "xdg")
 os.environ["CUDA_MODULE_LOADING"] = "LAZY"
+
+# NEW: Global Lock to prevent OOM on GTX 1050
+GPU_LOCK = threading.Lock()
+
+# --- NEW: Enterprise Logging ---
+from logging_config import setup_logger
+logger = setup_logger("ML_WORKER", "worker.log")
 
 def write_status(stage, detail="", progress=0):
     try:
@@ -43,13 +47,14 @@ def write_status(stage, detail="", progress=0):
 # Initial status
 write_status("Idle")
 
-logger.info("--- NAC ENTERPRISE WORKER STARTING ---")
+logger.info("--- NAC ENTERPRISE WORKER v2.0 STARTING ---")
 
 # --- 2. TOP-LEVEL STABLE IMPORTS ---
 try:
     logger.info("Importing heavy AI libraries (Torch, Transformers)...")
     write_status("Initializing", "Loading AI engines...")
     import torch
+    import torchaudio
     from transformers import pipeline
     
     logger.info("Loading F5-TTS Core and bigVGAN Vocoder...")
@@ -91,70 +96,89 @@ try:
         conn, addr = server.accept()
         t_id = "N/A"
         try:
-            raw_data = conn.recv(32768).decode('utf-8')
+            raw_data = conn.recv(65536).decode('utf-8')
             if not raw_data: continue
             task = json.loads(raw_data)
             t_id = task.get("id", "Unknown")
             t_type = task.get("type")
             
-            logger.info(f"[{t_id}] Incoming {t_type} request from API")
+            logger.info(f"[{t_id}] Incoming {t_type} request")
             
             if t_type == "upload":
-                write_status("Processing", "Removing noise...", 20)
+                # CPU Bound tasks don't strictly need GPU_LOCK but we keep it simple
+                write_status("Processing", "Standardizing audio...", 10)
                 cleaned = processor.clean_audio(task["input"], task["output_dir"])
-                write_status("Processing", "Vocal isolation...", 50)
-                norm = processor.normalize_audio(cleaned, task["final_path"])
-                write_status("Processing", "Quality audit...", 70)
-                audit_res = auditor.audit(norm)
-                write_status("Processing", "Transcribing...", 90)
-                text = f5tts.transcribe(norm)
-                res = {"status": "success", "path": norm, "audit": audit_res, "transcription": text}
-                logger.info(f"[{t_id}] Upload processing complete")
+                write_status("Processing", "Quality audit...", 50)
+                audit_res = auditor.audit(cleaned)
+                write_status("Processing", "Transcribing...", 80)
+                text = f5tts.transcribe(cleaned)
+                res = {"status": "success", "path": cleaned, "audit": audit_res, "transcription": text}
                 write_status("Idle")
                 
             elif t_type == "generate":
-                style = task.get("style", "Default")
-                clarity = task.get("clarity", 1.0)
-                deepness = task.get("deepness", 1.0)
-                final_speed = task.get("speed", 1.0) * STYLE_SPEEDS.get(style, 1.0)
+                with GPU_LOCK:
+                    style = task.get("style", "Default")
+                    clarity = task.get("clarity", 1.0)
+                    deepness = task.get("deepness", 1.0)
+                    sibilance = task.get("sibilance", 0.5)
+                    final_speed = task.get("speed", 1.0) * STYLE_SPEEDS.get(style, 1.0)
+                    
+                    logger.info(f"[{t_id}] Generating block (Style: {style})")
+                    write_status("Generating", f"Block: {t_id[:8]}...", progress=40)
+                    
+                    raw_output = task["output_path"].replace(".wav", "_raw.wav")
+                    
+                    f5tts.infer(
+                        ref_file=task["ref_file"],
+                        ref_text=task["ref_text"],
+                        gen_text=task["gen_text"],
+                        speed=final_speed,
+                        nfe_step=task.get("nfe_step", 32),
+                        file_wave=raw_output
+                    )
+                    
+                    # Phase 4: Pre-Mastering (Diamond + Golden Touch)
+                    write_status("Polishing", "Applying Studio Mastering...", progress=90)
+                    master_success = mastering.apply_studio_polish(raw_output, task["output_path"], clarity=clarity, deepness=deepness, sibilance=sibilance)
+                    
+                    if not master_success:
+                        shutil.move(raw_output, task["output_path"])
+                    elif os.path.exists(raw_output):
+                        os.remove(raw_output)
+                    
+                    res = {"status": "success", "path": task["output_path"]}
+                    logger.info(f"[{t_id}] Block mastered successfully")
+                    write_status("Idle")
+                    
+                    # Aggressive Memory Sweeping
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+                        gc.collect()
+            
+            elif t_type == "glue_project":
+                logger.info(f"[{t_id}] Gluing {len(task['paths'])} blocks...")
+                write_status("Exporting", "Stitching audio blocks...", 50)
                 
-                logger.info(f"[{t_id}] Generating synthesis (Style: {style}, Speed: {final_speed})")
-                write_status("Generating", "Neural Synthesis Active...", progress=40)
+                output_path = task["output_path"]
+                # Use Zero-Crossing logic to concatenate
+                # For v2.0, we'll use a precise FFmpeg concat first
+                # In v2.1, we can implement deep wave-level stitching if needed
+                concat_list = Path(output_path).with_suffix(".txt")
+                with open(concat_list, "w") as f:
+                    for p in task["paths"]:
+                        f.write(f"file '{p.replace('\\', '/')}'\n")
                 
-                raw_output = task["output_path"].replace(".wav", "_raw.wav")
+                cmd = [
+                    processor.ffmpeg_path, "-y", "-f", "concat", "-safe", "0",
+                    "-i", str(concat_list), "-c", "copy", output_path
+                ]
+                import subprocess
+                subprocess.run(cmd, capture_output=True)
+                os.remove(concat_list)
                 
-                f5tts.infer(
-                    ref_file=task["ref_file"],
-                    ref_text=task["ref_text"],
-                    gen_text=task["gen_text"],
-                    speed=final_speed,
-                    nfe_step=task.get("nfe_step", 32),
-                    file_wave=raw_output
-                )
-                
-                logger.info(f"[{t_id}] Synthesis done. Starting Mastering chain...")
-                write_status("Polishing", "Applying Studio Mastering...", progress=90)
-                master_success = mastering.apply_studio_polish(raw_output, task["output_path"], clarity=clarity, deepness=deepness)
-                
-                if not master_success:
-                    logger.warning(f"[{t_id}] Mastering failed, using raw output")
-                    shutil.move(raw_output, task["output_path"])
-                elif os.path.exists(raw_output):
-                    os.remove(raw_output)
-                
-                res = {"status": "success", "path": task["output_path"]}
-                logger.info(f"[{t_id}] Generation task finalized")
+                res = {"status": "success", "path": output_path}
                 write_status("Idle")
-                
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
-                    gc.collect()
-                
-            elif t_type == "transcribe":
-                write_status("Processing", "Transcribing...", 50)
-                text = f5tts.transcribe(task["path"])
-                res = {"status": "success", "text": text}
-                write_status("Idle")
+
             else:
                 res = {"status": "error", "message": "Unknown task type"}
             

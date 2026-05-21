@@ -10,27 +10,28 @@ class AudioProcessor:
         self._device = None
         
         # Load config for portability
-        base_dir = Path(__file__).parent.parent
+        # Use .parent.parent because this file is in backend/
+        project_root = Path(__file__).parent.parent
         config_path = Path(__file__).parent / "config.json"
         
-        # Default relative path
-        default_ffmpeg = str(base_dir / "Tools" / "ffmpeg" / "bin" / "ffmpeg.exe")
+        # Default relative path from PROJECT ROOT
+        default_ffmpeg_rel = "Tools/ffmpeg/bin/ffmpeg.exe"
+        self.ffmpeg_path = str(project_root / default_ffmpeg_rel)
         
         if config_path.exists():
             try:
                 import json
                 with open(config_path, "r") as f:
                     config = json.load(f)
-                    # Resolve relative paths against the project base
-                    raw_path = config.get("ffmpeg_path", default_ffmpeg)
-                    if raw_path and not os.path.isabs(raw_path):
-                        self.ffmpeg_path = str(base_dir / raw_path)
-                    else:
-                        self.ffmpeg_path = raw_path
-            except:
-                self.ffmpeg_path = default_ffmpeg
-        else:
-            self.ffmpeg_path = default_ffmpeg
+                    raw_path = config.get("ffmpeg_path")
+                    if raw_path:
+                        if os.path.isabs(raw_path):
+                            self.ffmpeg_path = raw_path
+                        else:
+                            # Resolve relative paths against project root
+                            self.ffmpeg_path = str(project_root / raw_path)
+            except Exception as e:
+                print(f">> CONFIG LOAD FAILED: {e}. Using default.")
         
     @property
     def device(self):

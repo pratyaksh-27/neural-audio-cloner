@@ -10,6 +10,8 @@ node_modules/
 dist/
 dist-ssr/
 *.local
+npm-debug.log*
+yarn-debug.log*
 
 # --- Project Specific ---
 storage/uploads/*
@@ -20,6 +22,7 @@ storage/logs/*
 !storage/logs/.gitkeep
 storage/task_status.json
 backend/config.json
+# (internal_scripts is now COMMITTED to git)
 
 # --- Models ---
 models/cache/*
