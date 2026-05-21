@@ -20,7 +20,14 @@
 
 ---
 
-## 🚀 Quick Start (Windows)
+## ⚙️ Custom Configuration
+
+While NAC Studio is designed to be "zero-config," you can manually override paths (like FFmpeg) for your specific setup:
+1.  Copy `backend/config.json.example` to `backend/config.json`.
+2.  Edit the `ffmpeg_path` to point to your local installation.
+3.  The app will prioritize your custom paths over the defaults.
+
+---
 
 1.  **Clone the Repository:**
     ```bash
