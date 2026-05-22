@@ -1,204 +1,308 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { 
-  Layers, Play, Loader2, Download, 
-  Trash2, ChevronUp, ChevronDown, 
-  Scissors, Type, Wand2, CheckCircle, Save,
-  RefreshCcw
+  Type, Scissors, PlayCircle, Download, 
+  Trash2, RefreshCcw, Loader2, CheckCircle,
+  Sparkles, Info, Plus, Link, ChevronDown,
+  MoreVertical, Wand2, X
 } from 'lucide-react';
 import { generateAudio, getPreviewUrl, exportProject } from '../api';
 
+// --- Sub-Component: Floating Toolbar ---
+const BlockToolbar: React.FC<{ block: any }> = ({ block }) => {
+  const { voices, updateBlockSettings, removeBlock } = useStore();
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  return (
+    <div className="block-toolbar">
+      {/* Voice Select */}
+      <div className="toolbar-item">
+        <select 
+          value={block.voice} 
+          onChange={(e) => updateBlockSettings(block.id, { voice: e.target.value })}
+          style={{ background: 'transparent', border: 'none', fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent)', cursor: 'pointer', outline: 'none' }}
+        >
+          {voices.map(v => <option key={v} value={v}>{v}</option>)}
+        </select>
+      </div>
+
+      {/* Style Select */}
+      <div className="toolbar-item">
+        <select 
+          value={block.style} 
+          onChange={(e) => updateBlockSettings(block.id, { style: e.target.value })}
+          style={{ background: 'transparent', border: 'none', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', cursor: 'pointer', outline: 'none' }}
+        >
+          {['Default', 'Narration', 'Dark Cinematic', 'Storyteller', 'Calm', 'Energetic', 'Whisper'].map(s => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Speed Slider Mini */}
+      <div className="toolbar-item" style={{ gap: '0.25rem' }}>
+        <span>{block.speed}x</span>
+        <input 
+          type="range" min="0.5" max="2.0" step="0.1" 
+          value={block.speed} 
+          onChange={(e) => updateBlockSettings(block.id, { speed: parseFloat(e.target.value) })}
+          style={{ width: '60px', accentColor: 'var(--accent)' }}
+        />
+      </div>
+
+      <div className="toolbar-item" onClick={() => setShowAdvanced(!showAdvanced)} style={{ color: showAdvanced ? 'var(--accent)' : '' }}>
+        <Sparkles size={14} /> Golden Touch
+      </div>
+
+      <div className="toolbar-item op-delete" onClick={() => removeBlock(block.id)}>
+        <Trash2 size={14} />
+      </div>
+
+      {showAdvanced && (
+        <div className="mastering-popover">
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <h4 style={{ margin: 0, fontSize: '0.8rem', textTransform: 'uppercase' }}>Advanced Mastering</h4>
+            <X size={14} style={{ cursor: 'pointer' }} onClick={() => setShowAdvanced(false)} />
+          </div>
+          
+          {/* Clarity */}
+          <div className="control-group">
+            <div className="control-label">
+              <span>Clarity <Info size={12} className="info-icon tooltip" data-tip="Boosts high-frequency presence" /></span>
+              <span>{block.clarity}x</span>
+            </div>
+            <input type="range" min="1.0" max="1.5" step="0.1" value={block.clarity} onChange={(e) => updateBlockSettings(block.id, { clarity: parseFloat(e.target.value) })} />
+          </div>
+
+          {/* Deepness */}
+          <div className="control-group">
+            <div className="control-label">
+              <span>Deepness <Info size={12} className="info-icon tooltip" data-tip="Adds resonance to lower frequencies" /></span>
+              <span>{block.deepness}x</span>
+            </div>
+            <input type="range" min="0.8" max="1.2" step="0.05" value={block.deepness} onChange={(e) => updateBlockSettings(block.id, { deepness: parseFloat(e.target.value) })} />
+          </div>
+
+          {/* Sibilance */}
+          <div className="control-group">
+            <div className="control-label">
+              <span>De-Esser <Info size={12} className="info-icon tooltip" data-tip="Reduces harsh 'S' sounds" /></span>
+              <span>{(block.sibilance * 100).toFixed(0)}%</span>
+            </div>
+            <input type="range" min="0" max="1.0" step="0.05" value={block.sibilance} onChange={(e) => updateBlockSettings(block.id, { sibilance: parseFloat(e.target.value) })} />
+          </div>
+
+          {/* NFE */}
+          <div className="control-group">
+            <div className="control-label">
+              <span>Quality (NFE)</span>
+              <span>{block.nfeStep}</span>
+            </div>
+            <input type="range" min="16" max="128" step="16" value={block.nfeStep} onChange={(e) => updateBlockSettings(block.id, { nfeStep: parseInt(e.target.value) })} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const BlockEditor: React.FC = () => {
   const { 
-    blocks, addBlock, updateBlockText, removeBlock, reorderBlocks,
-    selectedVoice, speed, nfeStep, style, clarity, deepness, sibilance,
-    setBlockStatus, setBlockAudio
+    blocks, addBlock, updateBlockText, mergeBlockWithNext, clearAllBlocks,
+    splitMode, setSplitMode, masterVoice, setMasterVoice,
+    setBlockStatus, setBlockAudio, voices
   } = useStore();
 
-  const [importText, setImportText] = useState('');
+  const [inputText, setInputText] = useState('');
+  const [isGeneratingAll, setIsGeneratingAll] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [finalAudioUrl, setFinalAudioUrl] = useState<string | null>(null);
-
-  // PROJECT PERSISTENCE (Bonus Feature)
-  useEffect(() => {
-    const saved = localStorage.getItem('nac_project_blocks');
-    if (saved && blocks.length === 0) {
-      try {
-        const parsed = JSON.parse(saved);
-        parsed.forEach((b: any) => {
-          // Re-add to store
-          useStore.getState().addBlock(b.text);
-          const newId = useStore.getState().blocks.slice(-1)[0].id;
-          if (b.audioUrl && b.serverPath) {
-             useStore.getState().setBlockAudio(newId, b.audioUrl, b.serverPath);
-          }
-        });
-      } catch {}
-    }
-  }, []);
-
-  useEffect(() => {
-    if (blocks.length > 0) {
-      localStorage.setItem('nac_project_blocks', JSON.stringify(blocks));
-    }
-  }, [blocks]);
 
   const handleImport = () => {
-    if (!importText.trim()) return;
-    const chunks = importText.split(/\n\n|\.\s/).filter(t => t.trim().length > 0);
-    chunks.forEach(chunk => {
-       const text = chunk.trim();
-       addBlock(text.endsWith('.') ? text : text + ".");
+    if (!inputText.trim()) return;
+    
+    let parts: string[] = [];
+    if (splitMode === 'paragraph') {
+      parts = inputText.split(/\n\n+/);
+    } else {
+      // Protect "..." using negative lookahead
+      parts = inputText.match(/[^.!?]+[.!?]+(?!\.\.)[\s\n]*/g) || [inputText];
+    }
+
+    parts.forEach(p => {
+      const clean = p.trim();
+      if (clean) addBlock(clean);
     });
-    setImportText('');
+    setInputText('');
   };
 
-  const handleGenerateBlock = async (id: string, text: string) => {
-    if (!selectedVoice || !text) return;
+  const handleGenerateBlock = async (id: string) => {
+    const block = useStore.getState().blocks.find(b => b.id === id);
+    if (!block) return;
+    if (!block.voice) { alert("Please select a voice first"); return; }
+
     setBlockStatus(id, 'generating');
     try {
-      const data = await generateAudio(selectedVoice, text, speed, nfeStep, style, clarity, deepness, sibilance);
-      if (data.status === 'success') {
-        const url = getPreviewUrl(data.path);
-        setBlockAudio(id, url, data.path);
+      const res = await generateAudio({
+        id,
+        ref_voice: block.voice,
+        gen_text: block.text,
+        style: block.style,
+        speed: block.speed,
+        nfe_step: block.nfeStep,
+        clarity: block.clarity,
+        deepness: block.deepness,
+        sibilance: block.sibilance
+      });
+
+      if (res.status === 'success') {
+        setBlockAudio(id, getPreviewUrl(res.path), res.path);
+      } else {
+        setBlockStatus(id, 'error');
       }
-    } catch (err) {
+    } catch {
       setBlockStatus(id, 'error');
     }
   };
 
-  const generateAllEmpty = async () => {
-    const emptyBlocks = blocks.filter(b => b.status === 'idle' || b.status === 'error');
-    for (const b of emptyBlocks) {
-      await handleGenerateBlock(b.id, b.text);
+  const handleGenerateAll = async () => {
+    setIsGeneratingAll(true);
+    for (const block of blocks) {
+      if (block.status !== 'completed') {
+        await handleGenerateBlock(block.id);
+      }
     }
+    setIsGeneratingAll(false);
   };
 
   const handleExport = async () => {
     const paths = blocks.map(b => b.serverPath).filter(p => p !== null) as string[];
     if (paths.length === 0) return;
-    
-    setIsExporting(true);
-    setFinalAudioUrl(null);
-    try {
-      const data = await exportProject(paths);
-      if (data.status === 'success') {
-        setFinalAudioUrl(getPreviewUrl(data.path));
-      }
-    } catch (err) {
-      console.error("Export failed", err);
-    } finally {
-      setIsExporting(false);
-    }
-  };
 
-  const clearProject = () => {
-    if (!window.confirm("Clear all blocks and start fresh?")) return;
-    localStorage.removeItem('nac_project_blocks');
-    window.location.reload(); // Quickest way to reset store
+    setIsExporting(true);
+    try {
+      const res = await exportProject(paths);
+      if (res.status === 'success') {
+        const link = document.createElement('a');
+        link.href = getPreviewUrl(res.path);
+        link.download = `Studio_Export_${Date.now()}.wav`;
+        link.click();
+      }
+    } catch {
+      alert("Export failed");
+    }
+    setIsExporting(false);
   };
 
   return (
-    <div className="col-8" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      
-      {/* 1. SCRIPT IMPORT TOOL */}
-      <div className="bento-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-           <h4 className="control-label">Import Script</h4>
-           <button onClick={clearProject} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.7rem', cursor: 'pointer', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-              <RefreshCcw size={12} /> CLEAR PROJECT
-           </button>
+    <div className="infinite-canvas">
+      {/* 1. Header Toolbar */}
+      <div className="editor-header" style={{ position: 'sticky', top: 0, background: 'white', padding: '1rem 0', z-index: 200, marginBottom: '2rem', borderBottom: '1px solid var(--border-light)' }}>
+        <div className="header-left">
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em' }}>Studio Workspace</h2>
+          <div className="split-toggle">
+            <button className={splitMode === 'paragraph' ? 'active' : ''} onClick={() => setSplitMode('paragraph')}>Paragraphs</button>
+            <button className={splitMode === 'sentence' ? 'active' : ''} onClick={() => setSplitMode('sentence')}>Sentences</button>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-          <textarea 
-            className="studio-editor"
-            style={{ flex: 1, minHeight: '80px', marginBottom: 0 }}
-            placeholder="Paste your full script here to split into blocks..."
-            value={importText}
-            onChange={(e) => setImportText(e.target.value)}
-          />
-          <button className="btn-primary" style={{ width: 'auto', padding: '1.25rem 2rem' }} onClick={handleImport}>
-            <Scissors size={18} /> Split Blocks
+
+        <div className="header-actions">
+          <button className="btn-v3-outline" onClick={clearAllBlocks} title="Clear Canvas"><Trash2 size={16} /></button>
+          <button className="btn-v3" onClick={handleGenerateAll} disabled={isGeneratingAll || blocks.length === 0}>
+            {isGeneratingAll ? <Loader2 className="animate-spin" size={18} /> : <PlayCircle size={18} />}
+            Generate All
+          </button>
+          <button className="btn-v3" style={{ background: 'var(--success)' }} onClick={handleExport} disabled={isExporting || blocks.filter(b => b.status === 'completed').length === 0}>
+            <Download size={18} /> Export
           </button>
         </div>
       </div>
 
-      {/* 2. THE TIMELINE (BLOCKS) */}
-      <div className="timeline-container">
-        {blocks.map((block, index) => (
-          <div key={block.id} className={`bento-card timeline-block ${block.status === 'completed' ? 'active' : ''}`} style={{ padding: '1.25rem' }}>
-            <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', opacity: 0.4 }}>
-                <button className="trash-btn" style={{ opacity: 1, padding: 0 }} onClick={() => reorderBlocks(index, index - 1)} disabled={index === 0}><ChevronUp size={16} /></button>
-                <button className="trash-btn" style={{ opacity: 1, padding: 0 }} onClick={() => reorderBlocks(index, index + 1)} disabled={index === blocks.length - 1}><ChevronDown size={16} /></button>
-              </div>
-              
-              <div style={{ flex: 1 }}>
-                <textarea 
-                  value={block.text}
-                  onChange={(e) => updateBlockText(block.id, e.target.value)}
-                  rows={Math.max(1, block.text.split('\n').length)}
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                {block.audioUrl && (
-                  <audio src={block.audioUrl} style={{ height: '30px', width: '140px' }} controls />
-                )}
-                
-                <button 
-                  className="btn-primary" 
-                  style={{ width: '110px', padding: '0.6rem', fontSize: '0.8rem', background: block.status === 'completed' ? 'var(--bg-deep)' : 'var(--accent)', border: block.status === 'completed' ? '1px solid var(--border)' : 'none' }}
-                  onClick={() => handleGenerateBlock(block.id, block.text)}
-                  disabled={block.status === 'generating' || !selectedVoice}
-                >
-                  {block.status === 'generating' ? <Loader2 size={14} className="spinner" /> : 
-                   block.status === 'completed' ? <CheckCircle size={14} color="#10b981" /> : <Wand2 size={14} />}
-                  <span style={{ marginLeft: '4px' }}>
-                    {block.status === 'generating' ? 'Wait' : block.status === 'completed' ? 'Redo' : 'Generate'}
-                  </span>
-                </button>
-
-                <button className="trash-btn" style={{ opacity: 0.6 }} onClick={() => removeBlock(block.id)}><Trash2 size={16} /></button>
+      {/* 2. Paste Tray (Integrated) */}
+      {blocks.length === 0 && (
+        <div className="paste-tray">
+          <textarea 
+            placeholder="Paste your script here... v3.0 will intelligently split and preserve your pauses ('...')."
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+          />
+          <div className="tray-controls">
+            <div className="tray-left">
+              <div className="toolbar-item">
+                <span>Default Voice:</span>
+                <select value={masterVoice} onChange={(e) => setMasterVoice(e.target.value)} style={{ padding: '4px', borderRadius: '6px', border: '1px solid var(--border-strong)', outline: 'none' }}>
+                  <option value="">-- Auto --</option>
+                  {voices.map(v => <option key={v} value={v}>{v}</option>)}
+                </select>
               </div>
             </div>
+            <button className="btn-v3" onClick={handleImport}>
+              <Sparkles size={18} /> Import to Canvas
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 3. The Canvas Workspace */}
+      <div className="block-editor-v3">
+        {blocks.map((block, index) => (
+          <div key={block.id} className="block-segment">
+            {/* Gutter Tools */}
+            <div className="gutter-trigger" style={{ top: '1.5rem' }}>
+              <Plus size={16} title="Add block here" />
+            </div>
+
+            <BlockToolbar block={block} />
+
+            <textarea 
+              className="block-textarea"
+              value={block.text}
+              onChange={(e) => updateBlockText(block.id, e.target.value)}
+              rows={1}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = 'auto';
+                target.style.height = target.scrollHeight + 'px';
+              }}
+              placeholder="Type or paste content..."
+            />
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+              {block.audioUrl && <audio src={block.audioUrl} controls className="row-audio-mini" />}
+              <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {block.status === 'generating' && <Loader2 size={16} className="animate-spin text-accent" />}
+                {block.status === 'completed' && <CheckCircle size={16} className="text-green" />}
+                {block.status === 'error' && <RefreshCcw size={16} className="text-red" onClick={() => handleGenerateBlock(block.id)} style={{ cursor: 'pointer' }} />}
+                
+                <button 
+                  onClick={() => handleGenerateBlock(block.id)}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-light)', cursor: 'pointer' }}
+                  title="Generate this segment"
+                >
+                  <Wand2 size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Merge Gutter */}
+            {index < blocks.length - 1 && (
+              <div 
+                className="gutter-trigger" 
+                style={{ bottom: '-15px', height: '1px', width: '100px', background: 'var(--border-light)', left: '50%', transform: 'translateX(-50%)', opacity: 0.3 }}
+                onClick={() => mergeBlockWithNext(block.id)}
+                title="Merge segments"
+              >
+                <Link size={12} />
+              </div>
+            )}
           </div>
         ))}
       </div>
 
-      {/* 3. GLOBAL ACTIONS */}
       {blocks.length > 0 && (
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-          <button className="btn-primary" style={{ flex: 1, background: 'var(--bg-card)', border: '1px solid var(--border)' }} onClick={generateAllEmpty}>
-            Generate All Missing Blocks
-          </button>
-          <button className="btn-primary" style={{ flex: 1.5, background: '#10b981' }} onClick={handleExport} disabled={isExporting || blocks.some(b => !b.audioUrl)}>
-            {isExporting ? <Loader2 size={18} className="spinner" /> : <><Save size={18} /> Export Master Project</>}
-          </button>
-        </div>
-      )}
-
-      {finalAudioUrl && (
-        <div className="bento-card" style={{ border: '2px solid #10b981', marginTop: '1.5rem', background: 'rgba(16, 185, 129, 0.05)' }}>
-           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <CheckCircle color="#10b981" size={24} />
-                <h3 style={{ margin: 0 }}>Project Mastered!</h3>
-              </div>
-              <a href={finalAudioUrl} download="master_export.wav" style={{ color: '#10b981', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800 }}>
-                <Download size={18} /> DOWNLOAD WAV
-              </a>
-            </div>
-            <audio controls src={finalAudioUrl} style={{ width: '100%', marginTop: '1.5rem' }} />
-        </div>
-      )}
-
-      {blocks.length === 0 && (
-        <div style={{ padding: '4rem', textAlign: 'center', opacity: 0.3 }}>
-          <Type size={48} style={{ marginBottom: '1rem' }} />
-          <h3>Timeline Empty</h3>
-          <p>Paste a script above to begin your professional project.</p>
+        <div style={{ marginTop: '4rem', textAlign: 'center', borderTop: '1px solid var(--border-light)', paddingTop: '2rem' }}>
+           <button className="btn-v3-outline" onClick={() => addBlock('')} style={{ margin: '0 auto' }}>
+             <Plus size={16} /> Add Paragraph
+           </button>
         </div>
       )}
     </div>

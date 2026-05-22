@@ -28,6 +28,13 @@ To prevent driver crashes on Pascal-era hardware (GTX 1050), the system uses phy
 - [x] **Phase 3: Mastering Engine** (The 'Golden Touch' harmonics).
 - [x] **Phase 4: Bento UI** (Horizontal single-screen Control Deck).
 - [x] **Phase 5: Enterprise Logging** (Correlation IDs and Persistent logs).
+- [x] **Phase 6: v2.0.0 Wonders Release** (Block Editor, GPU Mutex, Diamond Touch).
+
+## Active Roadmap: v3.0.0 "The Infinite Canvas"
+- [ ] **Phase 7: Per-Block Settings** (Decentralizing global state to individual script segments).
+- [ ] **Phase 8: Studio Pro Layout** (Light theme, 1200px Document Canvas, 70px Icon Rail).
+- [ ] **Phase 9: Gutter Interactions** (Seamless hover-triggered Split and Join mechanics).
+- [ ] **Phase 10: Smart Paste Tray** (Contextual import preferences without pop-up dialogs).
 
 ## Key Files
 *   **`backend/api_server.py`**: Entry point for all UI communication.
