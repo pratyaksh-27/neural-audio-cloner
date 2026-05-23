@@ -8,7 +8,7 @@ if (Test-Path $PID_FILE) { Remove-Item $PID_FILE }
 
 # 1. Start ML Worker (GPU Process)
 Write-Host "[1/3] Starting ML Worker (GPU)..." -ForegroundColor Yellow
-$worker = Start-Process powershell -ArgumentList "-NoProfile", "-Command", "cd backend; .\venv\Scripts\python.exe ml_worker.py; Read-Host 'Press Enter to exit...'" -PassThru -WindowStyle Normal
+$worker = Start-Process powershell -ArgumentList "-NoProfile", "-Command", "cd backend; .\venv\Scripts\python.exe ml_worker.py" -PassThru -WindowStyle Normal
 $worker.Id | Out-File -FilePath $PID_FILE -Append
 
 Start-Sleep -Seconds 2

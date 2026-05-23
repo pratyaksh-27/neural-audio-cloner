@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../store/useStore';
-import { Music, Mic, Activity, Library } from 'lucide-react';
+import { Music, Mic, Library } from 'lucide-react';
 
 interface SidebarProps {
   liveStatus: any;
@@ -10,14 +10,8 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ liveStatus, appVersion }) => {
   const { activeTab, setActiveTab } = useStore();
 
-  const isBusy = liveStatus.stage !== "Idle";
-
   return (
     <aside className="sidebar-rail">
-      <div className="rail-logo">
-        <Activity size={32} />
-      </div>
-
       <nav className="rail-nav">
         <button 
           className={`rail-item ${activeTab === 'studio' ? 'active' : ''}`}
@@ -30,20 +24,22 @@ const Sidebar: React.FC<SidebarProps> = ({ liveStatus, appVersion }) => {
         <button 
           className={`rail-item ${activeTab === 'clone' ? 'active' : ''}`}
           onClick={() => setActiveTab('clone')}
+          title="Voice Cloning"
+        >
+          <Mic size={22} />
+        </button>
+
+        <button 
+          className={`rail-item ${activeTab === 'library' ? 'active' : ''}`}
+          onClick={() => setActiveTab('library')}
           title="Voice Library"
         >
           <Library size={22} />
         </button>
       </nav>
 
-      <div className="status-rail">
-        <div 
-          className={`pulse-dot ${isBusy ? 'busy' : ''}`} 
-          title={`Worker Status: ${liveStatus.stage}`}
-        />
-        <div style={{ opacity: 0.1, fontSize: '0.6rem', fontWeight: 900, transform: 'rotate(-90deg)', whiteSpace: 'nowrap' }}>
-          NAC v3.0
-        </div>
+      <div style={{ marginTop: 'auto', opacity: 0.1, fontSize: '0.6rem', fontWeight: 900, transform: 'rotate(-90deg)', whiteSpace: 'nowrap', paddingBottom: '2rem' }}>
+        {appVersion}
       </div>
     </aside>
   );

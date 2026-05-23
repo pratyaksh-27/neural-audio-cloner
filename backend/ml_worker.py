@@ -202,4 +202,3 @@ except Exception as e:
             f.write(f"FATAL ERROR: {str(e)}\n")
             f.write(traceback.format_exc())
     except: pass
-    input("\nCRITICAL FAILURE. Press Enter to close this window...")

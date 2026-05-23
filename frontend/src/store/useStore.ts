@@ -2,13 +2,13 @@ import { create } from 'zustand';
 import type { VoiceBlock, ProjectState } from '../types';
 
 interface AppState extends ProjectState {
-  activeTab: 'clone' | 'studio';
+  activeTab: 'studio' | 'clone' | 'library';
   voices: string[];
   isGenerating: boolean;
   generatedAudioUrl: string | null;
   
   // Actions
-  setActiveTab: (tab: 'clone' | 'studio') => void;
+  setActiveTab: (tab: 'studio' | 'clone' | 'library') => void;
   setVoices: (voices: string[]) => void;
   setSplitMode: (mode: 'sentence' | 'paragraph') => void;
   

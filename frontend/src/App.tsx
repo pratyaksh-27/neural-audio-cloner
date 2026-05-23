@@ -5,14 +5,8 @@ import { getStatus, getVersion, listVoices } from './api';
 import Sidebar from './components/Sidebar';
 import BlockEditor from './components/BlockEditor';
 import VoiceCloning from './components/VoiceCloning';
-import { AlertCircle, CheckCircle } from 'lucide-react';
-
-// --- Enterprise UI Logger ---
-const appLog = (level: 'INFO' | 'WARN' | 'ERROR', msg: string, data?: any) => {
-  const ts = new Date().toISOString();
-  const color = level === 'ERROR' ? 'red' : level === 'WARN' ? 'orange' : '#6366f1';
-  console.log(`%c[${ts}] [${level}] [NAC_UI] ${msg}`, `color: ${color}; font-weight: bold;`, data || '');
-};
+import VoiceLibrary from './components/VoiceLibrary';
+import { AlertCircle, CheckCircle, Activity } from 'lucide-react';
 
 function App() {
   const { activeTab, setVoices, setSelectedVoice, selectedVoice } = useStore();
@@ -21,15 +15,13 @@ function App() {
   const [status, setStatus] = useState<{ type: 'info' | 'success' | 'error', msg: string } | null>(null);
 
   useEffect(() => { 
-    appLog('INFO', 'Studio Pro v3.0 booting...');
-    
     const init = async () => {
       try {
         const [v, ver] = await Promise.all([listVoices(), getVersion()]);
         setVoices(v);
         setAppVersion(ver.version);
       } catch (err) {
-        appLog('ERROR', 'System heartbeat failed', err);
+        console.error('System heartbeat failed', err);
       }
     };
     init();
@@ -39,7 +31,7 @@ function App() {
         const s = await getStatus();
         setLiveStatus(s);
       } catch {
-        appLog('WARN', 'Polling heartbeat interrupted');
+        console.warn('Polling heartbeat interrupted');
       }
     }, 2000);
     
@@ -48,11 +40,26 @@ function App() {
 
   return (
     <div className="app-layout">
-      <Sidebar liveStatus={liveStatus} appVersion={appVersion} />
+      {/* 1. TOP NAV (Inverse L) */}
+      <header className="top-nav">
+        <div className="top-nav-logo">
+          <Activity size={28} />
+          <span>NAC STUDIO <span style={{ opacity: 0.4, fontWeight: 500 }}>PRO</span></span>
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div className={`pulse-dot ${liveStatus.stage !== 'Idle' ? 'busy' : ''}`} />
+          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)' }}>
+            {liveStatus.stage.toUpperCase()}
+          </span>
+        </div>
+      </header>
 
-      <main className="main-workspace">
-        <div className="workspace-content">
-          
+      <div className="main-container">
+        {/* 2. LEFT RAIL */}
+        <Sidebar liveStatus={liveStatus} appVersion={appVersion} />
+
+        {/* 3. MAIN WORKSPACE */}
+        <main className="main-workspace">
           {status && (
             <div className="status-toast" style={{ background: status.type === 'error' ? '#fee2e2' : '#dcfce7', color: status.type === 'error' ? '#b91c1c' : '#15803d' }}>
               {status.type === 'error' ? <AlertCircle size={20} /> : <CheckCircle size={20} />}
@@ -60,18 +67,13 @@ function App() {
             </div>
           )}
 
-          {activeTab === 'studio' && (
-            <BlockEditor />
-          )}
-
-          {activeTab === 'clone' && (
-            <div style={{ maxWidth: '1000px', width: '100%', margin: '0 auto', padding: '4rem' }}>
-              <VoiceCloning />
-            </div>
-          )}
-
-        </div>
-      </main>
+          <div className="infinite-canvas">
+            {activeTab === 'studio' && <BlockEditor />}
+            {activeTab === 'clone' && <VoiceCloning />}
+            {activeTab === 'library' && <VoiceLibrary />}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
